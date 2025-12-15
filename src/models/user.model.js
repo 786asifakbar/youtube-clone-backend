@@ -16,7 +16,34 @@ const userSchema = new mongoose.Schema({
         lowercase : true,
         trim : true,
        },
-       
+       fullname:{
+        type : String,
+        required : true,
+        unique : true,
+        index : true
+       },
+
+       email:{
+        type : String,
+        required : true,
+        unique : true,
+        lowercase : true,
+        trim : true,
+       },
+       avatar:{
+        type : String,
+        required : true,
+       },
+       coverImage:{
+        type : String,
+        required : true,
+       },
+       watchHistory:[
+         {
+            type: mongoose.Schema.Types.ObjectId,
+            ref : "Video",
+         }
+       ]
        
 },{timestamps : true});
 export const User = mongoose.model("User" , userSchema);
