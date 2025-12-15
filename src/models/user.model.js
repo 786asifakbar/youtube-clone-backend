@@ -43,7 +43,15 @@ const userSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref : "Video",
          }
-       ]
+       ],
+       password:{
+         type : String ,
+         required :[true , "Password is required"]
+       },
+       refreshToken:{
+         type : String,
+         
+       }
        
 },{timestamps : true});
 export const User = mongoose.model("User" , userSchema);
