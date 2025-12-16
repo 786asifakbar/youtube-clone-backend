@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
-import { JsonWebTokenError } from "jsonwebtoken";
+import jwt  from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
+
+
+
 const userSchema = new mongoose.Schema({
     username:{
        type: String,
@@ -64,7 +68,7 @@ next()
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
-   return await bcrypt.bcrypt.campare(password, this.password)
+   return await bcrypt.campare(password, this.password)
 }
 
 
