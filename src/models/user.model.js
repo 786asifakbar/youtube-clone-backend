@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
-import jwt  from "jsonwebtoken";
+import { JsonWebTokenError } from "jsonwebtoken";
 import bcrypt from "bcrypt";
-
-
-
-
 const userSchema = new mongoose.Schema({
     username:{
        type: String,
