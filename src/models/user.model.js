@@ -69,10 +69,8 @@ userSchema.methods.isPasswordCorrect = async function(password){
 
 
 
-
 userSchema.method.genrateAccessToken = function(){
-   return jwt.sign({
-          
+   return jwt.sign({          
          _id: this.id,
          username: this.username,
          email: this.email,
@@ -97,9 +95,5 @@ userSchema.method.genrateRefreshToken = function(){
    }
 )
 };
-
-
-
-
 
 export const User = mongoose.model("User" , userSchema);
