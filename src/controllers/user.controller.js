@@ -6,9 +6,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 // 5 access and refresh tokens
-const genrateAccessAndRefreshTokens = async (userId)=>{
+const genrateAccessAndRefreshTokens = async ( userId )=>{
     try {
-        const user = await User.findById(userId)
+        const user = await User.findById(userId) 
         const accessToken = user.genrateAccessToken();
         const refreshToken = user.genrateRefreshToken();
        
@@ -89,42 +89,40 @@ return res.status(201).json(
 });
 
 const loginUser = asyncHandler(async(req , res) => {
-
     //1 get data req.body 
-   const {username , email , password } = req.body;
-   
-   if(!username || !email){
+   const {username , email , password } = req.body;   
+   if(!username || !email){ // agr username ya email nh hai to error throw kro 
     throw new ApiError(400 , " user and password are required ")
    };
 
 // 2 check email and username 
 const user = await User.findOne({
-    $or :[{username},{email}]
+    $or :[{username} , {email}] // in men se koi bhi ak ho 
 });
 
 // 3 find user
-if(!user){
+if(!user){ // agar db men user nh hai to error show kro agr hai to password ko check kro
     throw new ApiError(404 , " user does not exits ")
 }
  
 // 4 check password
-const passwordValidate =  await user.isPasswordCorrect(password)
-if(!passwordValidate){
+const passwordValidate =  await user.isPasswordCorrect(password)// check password are correct 
+
+if(!passwordValidate){ // agr password correct nh hai to error throw kro 
     throw new ApiError(401 , " Invalid user creditionals ")
 }
 
-// 5 used access and refresh token 
+// 5 used access and refresh token  
 const { accessToken , refreshToken } = await genrateAccessAndRefreshTokens(user._id)
 const loggedinUser = await User.findById(user._id)
 .select("_password -refreshtoken ")
 
+
+// 6 send cookies
 const options = { 
     httpOnly : true ,
     secure : true 
  }
-
-// 6 send cookies
-
 return res
 .status(200)
 .cookie("accessToken" , accessToken , options)
@@ -137,9 +135,7 @@ new ApiResponse(200 , {
  )
 )
 
-})
-
-
+});
 
 const logOutUser = asyncHandler(async (req , res)=>{
 User.findByIdAndUpdate(
@@ -168,7 +164,7 @@ return res
 .json(
     new ApiResponse(200, {}, "User logout Successfully")
 )
-})
+});
 
 
 
