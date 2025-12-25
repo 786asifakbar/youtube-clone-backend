@@ -89,7 +89,8 @@ return res.status(201).json(
 });
 
 const loginUser = asyncHandler(async(req , res) => {
-//1 get data req.body 
+
+    //1 get data req.body 
    const {username , email , password } = req.body;
    
    if(!username || !email){
@@ -107,9 +108,7 @@ if(!user){
 }
  
 // 4 check password
-
 const passwordValidate =  await user.isPasswordCorrect(password)
-
 if(!passwordValidate){
     throw new ApiError(401 , " Invalid user creditionals ")
 }
@@ -150,6 +149,8 @@ const logOutUser = asyncHandler(async (req , res)=>{
 
 export {
      registerUser,
+     loginUser,
+     logOutUser,
     
     
     }
