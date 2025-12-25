@@ -114,13 +114,29 @@ if(!passwordValidate){
     throw new ApiError(401 , " Invalid user creditionals ")
 }
 
-// access and refresh token 
- 
+// 5 used access and refresh token 
 const { accessToken , refreshToken } = await genrateAccessAndRefreshTokens(user._id)
 const loggedinUser = await User.findById(user._id)
 .select("_password -refreshtoken ")
 
-// 6 send cookies 
+const options = { 
+    httpOnly : true ,
+    secure : true 
+ }
+
+// 6 send cookies
+
+return res
+.status(200)
+.cookie("accessToken" , accessToken , options)
+.cookie("refreshTpken" , refreshToken , options)
+.json(
+new ApiResponse(200 , {
+    user: loggedinUser , accessToken , refreshToken
+},
+" user LoggedIn Successfully "
+ )
+)
 
 
 
