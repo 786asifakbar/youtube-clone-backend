@@ -138,9 +138,11 @@ new ApiResponse(200 , {
  )
 )
 
+})
 
 
 
+const logOutUser = asyncHandler(async (req , res)=>{
 
 })
 
