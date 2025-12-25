@@ -12,6 +12,9 @@ const genrateAccessAndRefreshTokens = async (userId)=>{
         const accessToken = user.genrateAccessToken();
         const refreshToken = user.genrateRefreshToken();
        
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave : false })
+
         
 
 
