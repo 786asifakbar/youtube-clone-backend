@@ -64,7 +64,7 @@ next()
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
-   return await bcrypt.campare(password, this.password)
+   return await bcrypt.compare(password, this.password)
 }
 
 

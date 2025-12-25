@@ -4,6 +4,25 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+
+
+const genrateAccessAndRefreshTokens = async (userId)=>{
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.genrateAccessToken();
+        const refreshToken = user.genrateRefreshToken();
+       
+        
+
+
+
+
+    } catch (error) {
+        throw new ApiError(500, "somethinf went to wrong while genrating access and refresh tokens")
+    }
+} 
+
+
 const registerUser = asyncHandler(async (req , res)=>{
 
 //get user detail from frontend
@@ -97,7 +116,7 @@ if(!passwordValidate){
     throw new ApiError(401 , " Invalid user creditionals ")
 }
 
-// refresh and access token
+// refresh and access token  
 // send cookies 
 
 
