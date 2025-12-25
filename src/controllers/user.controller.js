@@ -83,13 +83,20 @@ const loginUser = asyncHandler(async(req , res) => {
 const user = await User.findOne({
     $or :[{username},{email}]
 });
+
+// find user
 if(!user){
     throw new ApiError(404 , " user does not exits ")
 }
+ 
+// check password
 
+const passwordValidate =  await user.isPasswordCorrect(password)
 
-// find user 
-// check password 
+if(!passwordValidate){
+    throw new ApiError(401 , " Invalid user creditionals ")
+}
+
 // refresh and access token
 // send cookies 
 
