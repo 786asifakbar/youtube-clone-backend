@@ -142,7 +142,32 @@ new ApiResponse(200 , {
 
 
 const logOutUser = asyncHandler(async (req , res)=>{
+User.findByIdAndUpdate(
+    req.user._id,
+    {
+        $set:{
+            refreshToken: undefined 
+        }
+    },
+{
+    new : true
+}
 
+)
+
+const options = {
+httpOnly: true,
+secure : true,
+
+}
+
+return res
+.status(200)
+.ClearCookie("accessToken", options)
+.ClearCookie("refreshToken" , options)
+.json(
+    new ApiResponse(200, {}, "User logout Successfully")
+)
 })
 
 
