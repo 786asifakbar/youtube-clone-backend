@@ -73,7 +73,21 @@ return res.status(201).json(
 
 const loginUser = asyncHandler(async(req , res) => {
 // get data req.body 
+   const {username , email , password } = req.body;
+   
+   if(!username || !email){
+    throw new ApiError(400 , " user and password are required ")
+   };
+
 // check email and username 
+const user = await User.findOne({
+    $or :[{username},{email}]
+});
+if(!user){
+    throw new ApiError(404 , " user does not exits ")
+}
+
+
 // find user 
 // check password 
 // refresh and access token
