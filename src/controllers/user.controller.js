@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
-
+import jwt from "jsonwebtoken";
 
 // 5 access and refresh tokens
 const genrateAccessAndRefreshTokens = async ( userId )=>{
@@ -13,7 +13,7 @@ const genrateAccessAndRefreshTokens = async ( userId )=>{
         const refreshToken = user.genrateRefreshToken();
        
         user.refreshToken = refreshToken
-        await User.save({ validateBeforeSave : false })
+        await user.save({ validateBeforeSave : false })
 		
     }   catch (error) {
         throw new ApiError(500, "something went to wrong while genrating access and refresh tokens")
@@ -39,7 +39,7 @@ if(
      $or : [{ username } , { email }]
 
   })  
-  if(exitedUser){
+  if(exitedUser){ // agr exited user pehly se he db me save hai to api error show kro
     throw new ApiError(409 , "User with email and username is already exited ")
   }
     
@@ -88,11 +88,10 @@ return res.status(201).json(
 
 });
 
-
 const loginUser = asyncHandler(async(req , res) => {
     //1 get data req.body 
    const {username , email , password } = req.body;   
-   if(!username || !email){ // agr username ya email nh hai to error throw kro 
+   if(!(username || email)){ // agr username ya email nh hai to error throw kro 
     throw new ApiError(400 , " user and password are required ")
    };
 // 2 check email and username 
@@ -104,7 +103,7 @@ if(!user){ // agar db men user nh hai to error show kro agr hai to password ko c
     throw new ApiError(404 , " user does not exits ")
 }
 // 4 check password
-const passwordValidate =  await user.isPasswordCorrect(password)// check password are correct 
+const passwordValidate =  await User.isPasswordCorrect(password)// check password are correct 
 if(!passwordValidate){ // agr password correct nh hai to error throw kro 
     throw new ApiError(401 , " Invalid user creditionals ")
 }
@@ -136,7 +135,6 @@ new ApiResponse(200 , {
 
 });
 
-
 const logOutUser = asyncHandler(async (req , res)=>{
 await User.findByIdAndUpdate(
     req.user._id,
@@ -152,22 +150,68 @@ await User.findByIdAndUpdate(
 const options = {
 httpOnly: true,
 secure : true,
-
 }
 
 return res
 .status(200)
-.ClearCookie("accessToken", accessToken, options)
-.ClearCookie("refreshToken" , refreshToken , options)
+.ClearCookie("accessToken", options)
+.ClearCookie("refreshToken", options)
 .json(
     new ApiResponse(200, {}, "User logout Successfully")
 )
 });
 
+// ye code agr koi accesstoken refresh token expire hojae to user dobara hit kar k token ko refresh kar sakta hai 
+const refreshAccessToken = asyncHandler(async (req, res)=>{
+    const incomingRefreshToken = req.cookies.refresh || req.body.refreshToken
+
+    if(!incomingRefreshToken){
+        throw new ApiError(401 , " Unathorized request ")
+    }
+    try {
+        const decodedToken = jwt.verify(
+            incomingRefreshToken.process.env.REFRESH_TOKEN_SECRATE,
+        )
+    
+      const user = await User.findById(decodedToken?._id)
+    
+      if(!user){
+        throw new ApiError(401, " Invalid Refresh Token ")
+      }
+    
+      if(incomingRefreshToken !== user?.refreshToken){
+        throw new ApiError(401 , "Refresh Token is expired are used ")
+      }
+    
+      const options = {
+        httpOnly : true,
+        secure : true,
+      }
+    
+    const { accessToken , newRefreshToken } = await genrateAccessAndRefreshTokens(user._id)
+    
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken" , newRefreshToken , options)
+    .json(
+        new ApiResponse(200,
+            { accessToken , refreshToken : newRefreshToken },
+            "Access Token Refreshed ")
+    )
+    
+    } catch (error) {
+        throw new ApiError(401 , error?.message || " Invalid Refresh Token ")
+        
+    }
+
+
+})
+
 export {
      registerUser,
      loginUser,
      logOutUser,
-    
-    
+     refreshAccessToken,
+
     }
