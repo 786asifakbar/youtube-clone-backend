@@ -13,10 +13,10 @@ const genrateAccessAndRefreshTokens = async ( userId )=>{
         const refreshToken = user.genrateRefreshToken();
        
         user.refreshToken = refreshToken
-        await user.save({ validateBeforeSave : false })
-
-    } catch (error) {
-        throw new ApiError(500, "somethinf went to wrong while genrating access and refresh tokens")
+        await User.save({ validateBeforeSave : false })
+		
+    }   catch (error) {
+        throw new ApiError(500, "something went to wrong while genrating access and refresh tokens")
     }
 } 
 
@@ -88,26 +88,23 @@ return res.status(201).json(
 
 });
 
+
 const loginUser = asyncHandler(async(req , res) => {
     //1 get data req.body 
    const {username , email , password } = req.body;   
    if(!username || !email){ // agr username ya email nh hai to error throw kro 
     throw new ApiError(400 , " user and password are required ")
    };
-
 // 2 check email and username 
 const user = await User.findOne({
     $or :[{username} , {email}] // in men se koi bhi ak ho 
 });
-
 // 3 find user
 if(!user){ // agar db men user nh hai to error show kro agr hai to password ko check kro
     throw new ApiError(404 , " user does not exits ")
 }
- 
 // 4 check password
 const passwordValidate =  await user.isPasswordCorrect(password)// check password are correct 
-
 if(!passwordValidate){ // agr password correct nh hai to error throw kro 
     throw new ApiError(401 , " Invalid user creditionals ")
 }
@@ -123,6 +120,8 @@ const options = {
     httpOnly : true ,
     secure : true 
  }
+ 
+ //7 return response to frontend 
 return res
 .status(200)
 .cookie("accessToken" , accessToken , options)
@@ -131,14 +130,15 @@ return res
 new ApiResponse(200 , {
     user: loggedinUser , accessToken , refreshToken
 },
-" user LoggedIn Successfully "
+" User LoggedIn Successfully "
  )
 )
 
 });
 
+
 const logOutUser = asyncHandler(async (req , res)=>{
-User.findByIdAndUpdate(
+await User.findByIdAndUpdate(
     req.user._id,
     {
         $set:{
@@ -147,9 +147,7 @@ User.findByIdAndUpdate(
     },
 {
     new : true
-}
-
-)
+})
 
 const options = {
 httpOnly: true,
@@ -159,14 +157,12 @@ secure : true,
 
 return res
 .status(200)
-.ClearCookie("accessToken", options)
-.ClearCookie("refreshToken" , options)
+.ClearCookie("accessToken", accessToken, options)
+.ClearCookie("refreshToken" , refreshToken , options)
 .json(
     new ApiResponse(200, {}, "User logout Successfully")
 )
 });
-
-
 
 export {
      registerUser,
