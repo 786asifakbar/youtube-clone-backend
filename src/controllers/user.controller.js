@@ -314,114 +314,114 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         )
 });
 
-const getUserChannalProfile = asyncHandler(async(req , res)=>{
-    const {username} = req.params
+const getUserChannalProfile = asyncHandler(async (req, res) => {
+    const { username } = req.params
 
-    if(!username?.trim()){
-        throw new ApiError(200 , " username is missing  ")
+    if (!username?.trim()) {
+        throw new ApiError(200, " username is missing  ")
     }
     const channal = await User.aggregate([
         {
-        $match:{
-           username : username?.toLowerCase()
+            $match: {
+                username: username?.toLowerCase()
             }
         },
         {
-        $lookup:{
-           from : "subscription",
-           localField : "_id",
-           foreignField : "channal",
+            $lookup: {
+                from: "subscription",
+                localField: "_id",
+                foreignField: "channal",
                 as: "subscriber",
             }
         },
         {
-        $lookup:{
-           from : "subscription",
-           localField : "_id",
-           foreignField : "subscriber",
+            $lookup: {
+                from: "subscription",
+                localField: "_id",
+                foreignField: "subscriber",
                 as: "subscriberTO",
             }
         },
         {
-       $addFields:{
-        subscribersCount:{
-            $size :"$subscribers",
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers",
                 },
-        channalSubscribedToCount:{
-            $size:"$subscribedTo"
+                channalSubscribedToCount: {
+                    $size: "$subscribedTo"
                 },
-        $isSubscribedTo:{
-         $cond:{
-            if:{$in:[req.user?._id , "$subscribers , subscribers"]},
-            then : true,
-            else : false,
+                $isSubscribedTo: {
+                    $cond: {
+                        if: { $in: [req.user?._id, "$subscribers , subscribers"] },
+                        then: true,
+                        else: false,
                     },
                 },
 
             }
         },
         {
-     $project:{
-        fullname : 1,
-        username : 1 ,
+            $project: {
+                fullname: 1,
+                username: 1,
                 subscribersCount: 1,
-        channalSubscribedToCount:1,
-        isSubscribed : 1 ,
-        avatar : 1,
-        coverImage : 1,
-        email:1,
+                channalSubscribedToCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1,
+                email: 1,
 
             }
         }
     ]);
 
-if(!channal?.length){
-	throw new ApiError(404 , "channal does not existed");
+    if (!channal?.length) {
+        throw new ApiError(404, "channal does not existed");
 
 
         return res
             .status(200)
             .json(
-    new ApiResponse(200 , channal[0] , "User channal Fatched Successfully ")
+                new ApiResponse(200, channal[0], "User channal Fatched Successfully ")
             )
     }
 });
-const getWatchHistory = asyncHandler(async(req , res) => {
+const getWatchHistory = asyncHandler(async (req, res) => {
 
     const user = await User.aggregate([
         {
-           $match:{
-            _id : new mongoose.Types.ObjectId(user?._id)
+            $match: {
+                _id: new mongoose.Types.ObjectId(user?._id)
             }
         },
         {
-          $lookup:{
+            $lookup: {
                 from: "videos",
-            localField:"watchHistory",
-            foreignField:"_id",
-            as:"watchHistory",
-            pipeline:[
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
                     {
-                $lookup:{
-                    from : "users",
+                        $lookup: {
+                            from: "users",
                             localField: "owner",
-                    foreignField:"_id",
-                    as :"owner",
-                    pipeline:[
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
                                 {
-                        $project:{
+                                    $project: {
                                         fullname: 1,
-                            username : 1,
-                            avatar : 1,
+                                        username: 1,
+                                        avatar: 1,
                                     }
                                 }
                             ]
                         }
                     },
                     {
-                   $addFields:{
-                    owner:{
-                      $first:"$owner",    
+                        $addFields: {
+                            owner: {
+                                $first: "$owner",
                             }
                         }
                     }
@@ -435,7 +435,7 @@ const getWatchHistory = asyncHandler(async(req , res) => {
     return res
         .status(200)
         .json(
-        new ApiResponse(200 , user[0].watchHistory,"watch History fatched successfully")
+            new ApiResponse(200, user[0].watchHistory, "watch History fatched successfully")
         )
 });
 
