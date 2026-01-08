@@ -1,23 +1,13 @@
 import { Router } from "express";
-import {registerUser, 
-        loginUser, 
-        logOutUser, 
-        refreshAccessToken, 
-        changeCurrentPassword,
-        getCurrentUser,
-        updateAccountDetail,
-        updateUserAvatar,
-        updateUserCoverImage ,
-        getUserChannalProfile,
-        getWatchHistory
+import {registerUser,loginUser,logOutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetail,updateUserAvatar,updateUserCoverImage ,getUserChannalProfile,getWatchHistory
         } from "../controllers/user.controller.js";
 import { upload }  from "../middleweares/multer.middlewere.js";
 import { verifyJWT } from "../middleweares/auth.middleware.js";
 
 const router = Router();
+
 router.route("/register").post(
 upload.fields([ 
-
 {
     name: "avatar",
     maxCount : 1,
@@ -26,7 +16,6 @@ upload.fields([
     name : "coverImage",
     maxCount : 1 ,
 }    
-
 ]),
     registerUser
 );
